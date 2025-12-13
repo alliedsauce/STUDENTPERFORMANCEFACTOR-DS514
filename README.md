@@ -29,7 +29,38 @@
     - Logistic Regression
 
 ---
+
 ## **🌐 Data Preprocessing**
+ 1. Target variables & feature
+    - Feature:
+      ปัจจัยหลัก Attendance, Hours_Studied, Previous_scores, Tutoring_Sessions
+      ปัจจัยรอง Internet_Access, Motivation_Level, Family_income, Extracurricular_Activities, Parental_Involvement
+    - Target: score_group
+
+ 2. จัดกลุ่ม score_group เพื่อนำไปเป็น Target
+    //รูป
+    
+ 4. Encoding
+    - ทำความสะอาดข้อมูล (Data Cleaning)
+    - การแปลงข้อมูลตามลำดับ (Ordinal Encoding)
+      Feature: Motivation_Level, Family_income, Parental_Involvement
+      มี Data เป็น Low/Medium/High แปลงเป็น Low = 0, Medium = 1, High = 2
+    - การแปลงข้อมูลแบบทวิภาค (Binary Encoding)
+      Feature: Internet_Access, Extracurricular_Activities
+      มี Data เป็น Yes/No แปลงเป็น Yes = 1 No = 0
+    - การยืนยันข้อมูลตัวเลข (Numeric Transformation)
+      Feature: Attendance, Hours_Studied, Previous_scores, Tutoring_Sessions
+
+ 6. Train/Test Split: 80/20, random_state = 42    
+ 7. Scaling Strategies: Standard Scalar
+ 8. fit Model: Logistic Regression
+ 9. 
+
+ 10. 
+    
+
+ 11. 
+
 
 
 
