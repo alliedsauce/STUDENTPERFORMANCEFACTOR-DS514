@@ -31,37 +31,97 @@
 ---
 
 ## **🌐 Data Preprocessing**
- 1. Target variables & feature
-    - Feature:
-      ปัจจัยหลัก Attendance, Hours_Studied, Previous_scores, Tutoring_Sessions
-      ปัจจัยรอง Internet_Access, Motivation_Level, Family_income, Extracurricular_Activities, Parental_Involvement
-    - Target: score_group
+ **1. Target variables & feature**
+ 
+ **จัดกลุ่ม score_group เพื่อนำไปเป็น Target**
+  ```python
+  df['Score_Group'] = np.where(df['Exam_Score'] >= 70,'คะแนนสูง', 'ตะแนนต่ำ')
+  y = df['Score_Group']
+  ```
+ **รายการคอลัมน์ Feature**
+   ```python
+  feature_columns = [
+    'Attendance',
+    'Hours_Studied',
+    'Previous_Scores',
+    'Tutoring_Sessions',
+    'Internet_Access',
+    'Motivation_Level',
+    'Family_Income',
+    'Extracurricular_Activities',
+    'Parental_Involvement'
+  ]
+  X = df[feature_columns]
+  ```
+ **2. Encoding**
+  ```python
+  #ลบแถวที่มีค่าว่าง (NaN) ทั้งใน X และ y
+  print(f"จำนวนแถวเริ่มต้น: {len(X)}")
+  X = X.dropna()
+  y = y.loc[X.index]
+  print(f"จำนวนแถวหลังลบค่าว่าง: {len(X)}")
 
- 2. จัดกลุ่ม score_group เพื่อนำไปเป็น Target
-    //รูป
-    
- 4. Encoding
-    - ทำความสะอาดข้อมูล (Data Cleaning)
-    - การแปลงข้อมูลตามลำดับ (Ordinal Encoding)
-      Feature: Motivation_Level, Family_income, Parental_Involvement
-      มี Data เป็น Low/Medium/High แปลงเป็น Low = 0, Medium = 1, High = 2
-    - การแปลงข้อมูลแบบทวิภาค (Binary Encoding)
-      Feature: Internet_Access, Extracurricular_Activities
-      มี Data เป็น Yes/No แปลงเป็น Yes = 1 No = 0
-    - การยืนยันข้อมูลตัวเลข (Numeric Transformation)
-      Feature: Attendance, Hours_Studied, Previous_scores, Tutoring_Sessions
+  #การแปลงข้อมูลแบบลำดับ (Ordinal Encoding) สำหรับ 3 คอลัมน์
+  ordinal_cols = [
+    'Parental_Involvement',
+    'Family_Income',
+    'Motivation_Level',
+  ]
+  categories = [
+    ['Low', 'Medium', 'High'],
+    ['Low', 'Medium', 'High'],
+    ['Low', 'Medium', 'High'],
+  ]
+  encoder = OrdinalEncoder(categories=categories)
+  #แปลงคอลัมน์เหล่านี้เป็น String ก่อนเข้า encoder
+  X[ordinal_cols] = encoder.fit_transform(X[ordinal_cols].astype(str))
 
- 6. Train/Test Split: 80/20, random_state = 42    
- 7. Scaling Strategies: Standard Scalar
- 8. fit Model: Logistic Regression
- 9. 
+  #การแปลงข้อมูลแบบ Binary (Yes/No)
+  binary_cols = ['Internet_Access','Extracurricular_Activities']
+  X[binary_cols] = X[binary_cols].replace({'Yes': 1, 'No': 0})
 
- 10. 
-    
+  #การแปลงคอลัมน์ตัวเลขให้แน่ใจว่าเป็นตัวเลข
+  numeric_cols = ['Attendance', 'Hours_Studied','Previous_Scores','Tutoring_Sessions']
+  for col in numeric_cols:
+    X[col] = pd.to_numeric(X[col], errors='coerce')
+ ```
 
- 11. 
+ **3. Train/Test Split**     
+ ```python
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+print("ขนาดชุด Train:", X_train.shape)
+print("ขนาดชุด Test :", X_test.shape)
+```
+**4. Scaling Strategies: Standard Scalar**
+```python
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_train_scale = scaler.fit_transform(X_train)
+X_test_scale = scaler.transform(X_test)
+```
+**5. Model: Logistic Regression**
+```python
+from sklearn.linear_model import LogisticRegression
+logreg = LogisticRegression(max_iter=200)
+logreg.fit(X_train_scale, y_train)
 
+y_pred = logreg.predict(X_test_scale)
+```
+**6. Confusion Matrix**
+```python
+cm = confusion_matrix(y_test, y_pred)
+plt.figure(figsize=(6,4))
+sns.heatmap(cm, annot=True, fmt='d')
+plt.xlabel("Predicted Label")
+plt.ylabel("True Label")
+plt.title("Confusion Matrix")
+plt.show()
+```
+//pic
 
-
-
+**6. Classification Report**
+```python
+print(classification_report(y_test, y_pred))
+```
 ---
